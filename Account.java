@@ -7,14 +7,18 @@ public class Account {
     private int accountIDChecking;
     private int accountIDSaving;
 
+    public Account () {
+        // Empty constructor
+    }
+
     // Called from Checking/Saving subclass using the super() constructor
     // when creating a new checking or savings account.
-    public Account (int PIN, int SSN, String type) throws LengthException {
+    private Account (int PIN, int SSN, String type) throws LengthException {
         if (type.equals("checking")) {
             // Generate a random 5 digit account ID
-            this.accountIDChecking = (int)(Math.random() * 99999);
+            this.accountIDChecking = (int)(Math.random() * 99999)+1;
         } else if (type.equals("saving")) {
-            this.accountIDSaving = (int)(Math.random() * 99999);
+            this.accountIDSaving = (int)(Math.random() * 99999)+1;
         }
         int lengthPIN = String.valueOf(PIN).length();
         int lengthSSN = String.valueOf(SSN).length();
@@ -50,28 +54,45 @@ public class Account {
         }
     }
 
+    public void setPIN (int PIN) throws OverwriteException, LengthException {
+        if (this.PIN == 0) {
+            int lengthPIN = String.valueOf(PIN).length();
+            if (lengthPIN == 4) {
+                this.PIN = PIN;
+            } else {
+                throw new LengthException("PIN");
+            }
+        } else {
+            throw new OverwriteException("PIN");
+        }
+    }
 
-    public class Checking {
+    public void setSSN (int SSN) throws OverwriteException, LengthException {
+        if (this.SSN == 0) {
+            int lengthSSN = String.valueOf(SSN).length();
+            if (lengthSSN == 9) {
+                this.SSN = SSN;
+            } else {
+                throw new LengthException("SSN");
+            }
+        } else {
+            throw new OverwriteException("SSN");
+        }
+    }
+
+    public class Checking extends Account {
         private int accountID;
         private double balance;
 
         // Constructor for new checking account. Called when
         // opening a new checking account. Does not require
         // a balance.
-        public Checking (int PIN, int SSN) {
-            // This doesn't work right now because it wants to
-            // call to the default constructor, which doesn't
-            // exist. This is probably because it doesn't see
-            // the correct constructor since it is non-static.
-            // However, I can't make it static because (1) it's
-            // super weird to make a static constructor wtf and
-            // (2) the constructor makes references to its class
-            // members.
+        public Checking (int PIN, int SSN) throws LengthException {
             super(PIN, SSN, "checking");
             this.accountID = super.getAccountID("checking");
         }
 
-        public Checking (int PIN, Account account) {
+        public Checking (int PIN, Account account) throws InvalidPIN {
             if(account.validatePIN(PIN)) {
                 account.accountIDChecking = (int)(Math.random() * 99999);
                 this.accountID = account.getAccountID("checking");
@@ -79,24 +100,23 @@ public class Account {
         }
     }
 
-    class Saving {
+    public class Saving extends Account {
         private int accountID;
         private double balance;
 
         // Constructor for new savings account. Called when
         // opening a new savings account. Does not require
         // a balance.
-        public Saving (int PIN, int SSN) {
+        public Saving (int PIN, int SSN) throws LengthException {
             super(PIN, SSN, "saving");
             this.accountID = super.getAccountID("saving");
         }
 
-        public Saving (int PIN, Account account) {
+        public Saving (int PIN, Account account) throws InvalidPIN {
             if(account.validatePIN(PIN)) {
                 account.accountIDChecking = (int)(Math.random() * 99999);
                 this.accountID = account.getAccountID("saving");
             }
         }
-
     }
 }
