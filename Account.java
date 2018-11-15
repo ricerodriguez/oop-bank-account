@@ -16,9 +16,9 @@ public class Account {
     private Account (int PIN, int SSN, String type) throws LengthException {
         if (type.equals("checking")) {
             // Generate a random 5 digit account ID
-            this.accountIDChecking = (int)(Math.random() * 99999)+1;
+            this.accountIDChecking = (int)(Math.random() * 99998)+1;
         } else if (type.equals("saving")) {
-            this.accountIDSaving = (int)(Math.random() * 99999)+1;
+            this.accountIDSaving = (int)(Math.random() * 99998)+1;
         }
         int lengthPIN = String.valueOf(PIN).length();
         int lengthSSN = String.valueOf(SSN).length();
@@ -36,11 +36,23 @@ public class Account {
 
     }
 
-    private boolean validatePIN (int PIN) throws InvalidPIN {
+    private boolean validatePIN (int PIN, int accountID, String type) throws InvalidPIN, NoAccount {
         if (this.PIN != PIN) {
             throw new InvalidPIN();
-        } else {
+        } else if (this.whichAccount(accountID).equals(type)) {
             return true;
+        } else {
+            throw new NoAccount();
+        }
+    }
+
+    private String whichAccount (int accountID) {
+        if (this.accountIDChecking == accountID) {
+            return "checking";
+        } else if (this.accountIDSaving == accountID) {
+            return "saving";
+        } else {
+            return "null";
         }
     }
 
@@ -92,10 +104,18 @@ public class Account {
             this.accountID = super.getAccountID("checking");
         }
 
-        public Checking (int PIN, Account account) throws InvalidPIN {
-            if(account.validatePIN(PIN)) {
-                account.accountIDChecking = (int)(Math.random() * 99999);
+        // Constructor for opening checking account in existing bank account.
+        public Checking (int PIN, int accountID, Account account) throws InvalidPIN, NoAccount {
+            if (account.validatePIN(PIN,accountID,"checking")) {
+                account.accountIDChecking = (int)(Math.random() * 99998)+1;
                 this.accountID = account.getAccountID("checking");
+            }
+        }
+
+        // Deposit funds to checking account.
+        public void depositFunds (int PIN, int accountID, double funds, Account account) throws InvalidPIN, NoAccount {
+            if (account.validatePIN(PIN,accountID,"checking")) {
+                this.balance = balance+funds;
             }
         }
     }
@@ -112,9 +132,9 @@ public class Account {
             this.accountID = super.getAccountID("saving");
         }
 
-        public Saving (int PIN, Account account) throws InvalidPIN {
-            if(account.validatePIN(PIN)) {
-                account.accountIDChecking = (int)(Math.random() * 99999);
+        public Saving (int PIN, int accountID, Account account) throws InvalidPIN, NoAccount {
+            if(account.validatePIN(PIN,accountID,"saving")) {
+                account.accountIDChecking = (int)(Math.random() * 99998)+1;
                 this.accountID = account.getAccountID("saving");
             }
         }
