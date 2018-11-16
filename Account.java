@@ -25,6 +25,7 @@ public class Account {
     // Called from Checking/Saving subclass using the super() constructor
     // when creating a new checking or savings account.
     private Account (int PIN, int SSN, String type) throws LengthException, InvalidType {
+        // Check if this is a checking account or a savings account
         if (type.equals("checking")) {
             // Generate a random 5 digit account ID
             this.accountIDChecking[numChecking] = (int)(Math.random() * 99998)+1;
@@ -33,24 +34,33 @@ public class Account {
             this.accountIDSaving[numSaving] = (int)(Math.random() * 99998)+1;
             this.numSaving++;
         } else {
+            // If the type was neither checking nor savings, it's an invalid type
             throw new InvalidType(type);
         }
+        // Make a string from the PIN integer so we can use the .length() method
+        // for returning how many characters it is
         int lengthPIN = String.valueOf(PIN).length();
         int lengthSSN = String.valueOf(SSN).length();
+
+        // If the PIN is 4 characters long, store it
         if (lengthPIN == 4) {
             this.PIN = PIN;
         } else {
+            // Otherwise, throw an exception
             throw new LengthException("PIN");
         }
 
+        // If the SSN is 9 characters long, store it
         if (lengthSSN == 9){
             this.SSN = SSN;
         } else {
+            // Otherwise, throw an exception
             throw new LengthException("SSN");
         }
 
     }
 
+    // Use this to determine what kind of account something is based off its ID
     private String whichAccount (int accountID) {
         for (int i = 0; i < numChecking; i++) {
             if (this.accountIDChecking[i] == accountID) {
@@ -71,6 +81,7 @@ public class Account {
         return "null";
     }
 
+    // Use this to get the account ID of the last account that was added
     private int getAccountID (String type) {
         if (type.equals("checking")) {
             return this.accountIDChecking[numChecking-1];
@@ -81,6 +92,7 @@ public class Account {
         }
     }
 
+    // Use this to find the index of an account in the array of accounts
     private int findIndex (int accountID, String type) throws NoAccount {
         int i = 0;
         while (i < 10) {
@@ -114,6 +126,7 @@ public class Account {
         }
     }
 
+    // Use this to set the PIN of an account
     public void setPIN (int PIN) throws OverwriteException, LengthException {
         if (this.PIN == 0) {
             int lengthPIN = String.valueOf(PIN).length();
@@ -127,6 +140,7 @@ public class Account {
         }
     }
 
+    // Use this to set the SSN of an account
     public void setSSN (int SSN) throws OverwriteException, LengthException {
         if (this.SSN == 0) {
             int lengthSSN = String.valueOf(SSN).length();
@@ -140,9 +154,15 @@ public class Account {
         }
     }
 
+    // Use this to close an account. Replaces the account in the array of accounts with a 0,
+    // changes balance and account ID to 0. Moves all the other accounts in the array up a
+    // spot to replace the old one.
     public void closeAccount (int accountID) throws NoAccount {
+        // Store what kind of account this is into a String
         String type = this.whichAccount(accountID);
+        // Store the index of the account in the array of accounts
         int num = this.findIndex(accountID,type);
+        // Create an integer for temp storage and for how many elements are left to move up
         int temp, howManyLeft;
         if (type.equals("checking")) {
             howManyLeft = this.numChecking - num;
