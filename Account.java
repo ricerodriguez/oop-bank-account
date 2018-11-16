@@ -12,13 +12,19 @@ public class Account {
     private int numChecking = 0;
     // Number of Savings Accounts
     private int numSaving = 0;
+    // Array of checking accounts
+    private Checking [] accountChecking = new Checking [10];
+    // Array of savings accounts
+    private Saving [] accountSaving = new Saving [10];
+
+    // Empty constructor
     public Account () {
         // Empty constructor
     }
 
     // Called from Checking/Saving subclass using the super() constructor
     // when creating a new checking or savings account.
-    private Account (int PIN, int SSN, String type) throws LengthException {
+    private Account (int PIN, int SSN, String type) throws LengthException, InvalidType {
         if (type.equals("checking")) {
             // Generate a random 5 digit account ID
             this.accountIDChecking[numChecking] = (int)(Math.random() * 99998)+1;
@@ -26,6 +32,8 @@ public class Account {
         } else if (type.equals("saving")) {
             this.accountIDSaving[numSaving] = (int)(Math.random() * 99998)+1;
             this.numSaving++;
+        } else {
+            throw new InvalidType(type);
         }
         int lengthPIN = String.valueOf(PIN).length();
         int lengthSSN = String.valueOf(SSN).length();
@@ -73,6 +81,28 @@ public class Account {
         }
     }
 
+    private int findIndex (int accountID, String type) throws NoAccount {
+        int i = 0;
+        while (i < 10) {
+            if (type.equals("checking")) {
+                if (this.accountIDChecking[i] == accountID) {
+                    return i;
+                } else {
+                    i++;
+                }
+            } else if (type.equals("saving")) {
+                if (this.accountIDSaving[i] == accountID) {
+                    return i;
+                } else {
+                    i++;
+                }
+            } else {
+                throw new NoAccount();
+            }
+        }
+        return -1;
+    }
+
     // Use this from the main program
     public boolean validatePIN (int PIN, int accountID, String type) throws InvalidPIN, NoAccount {
         if (this.PIN != PIN) {
@@ -110,6 +140,31 @@ public class Account {
         }
     }
 
+    public void closeAccount (int accountID) throws NoAccount {
+        String type = this.whichAccount(accountID);
+        int num = this.findIndex(accountID,type);
+        int temp, howManyLeft;
+        if (type.equals("checking")) {
+            howManyLeft = this.numChecking - num;
+            temp = this.accountIDChecking[num];
+            Checking check = this.accountChecking[num];
+            check.balance = 0.0;
+            check.accountID = 0;
+            for (int i = num; i < howManyLeft; i++) {
+                this.accountIDChecking[i]=this.accountIDChecking[i+1];
+            }
+        } else if (type.equals("saving")) {
+            howManyLeft = this.numSaving - num;
+            temp = this.accountIDSaving[num];
+            Saving save = this.accountSaving[num];
+            save.balance = 0.0;
+            save.accountID = 0;
+            for (int i = num; i < howManyLeft; i++) {
+                this.accountIDSaving[i]=this.accountIDSaving[i+1];
+            }
+        }
+    }
+
     public class Checking extends Account {
         protected int accountID;
         protected double balance;
@@ -117,7 +172,7 @@ public class Account {
         // Constructor for new checking account. Called when
         // opening a new checking account. Does not require
         // a balance.
-        public Checking (int PIN, int SSN) throws LengthException {
+        public Checking (int PIN, int SSN) throws LengthException, InvalidType {
             super(PIN, SSN, "checking");
             this.accountID = super.getAccountID("checking");
         }
@@ -125,6 +180,7 @@ public class Account {
         // Constructor for opening checking account in existing bank account.
         public Checking (Account account) throws InvalidPIN, NoAccount {
             account.accountIDChecking[account.numChecking] = (int)(Math.random() * 99998)+1;
+            account.accountChecking[account.numChecking] = this;
             account.numChecking++;
             this.accountID = account.getAccountID("checking");
         }
@@ -136,7 +192,7 @@ public class Account {
         }
 
         public double withdrawFunds (double funds) throws LowFunds {
-            if (balance >= funds) {
+            if (this.balance >= funds) {
                 this.balance -= funds;
                 return this.balance;
             } else {
@@ -181,7 +237,7 @@ public class Account {
         // Constructor for new savings account. Called when
         // opening a new savings account. Does not require
         // a balance.
-        public Saving (int PIN, int SSN) throws LengthException {
+        public Saving (int PIN, int SSN) throws LengthException, InvalidType {
             super(PIN, SSN, "saving");
             this.accountID = super.getAccountID("saving");
         }
@@ -189,6 +245,7 @@ public class Account {
         // Constructor for opening savings account in existing bank account
         public Saving (Account account) throws InvalidPIN, NoAccount {
             account.accountIDSaving[account.numSaving] = (int)(Math.random() * 99998)+1;
+            account.accountSaving[account.numSaving] = this;
             account.numSaving++;
             this.accountID = account.getAccountID("saving");
         }
