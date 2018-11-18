@@ -2,29 +2,42 @@ import java.io.*;
 import java.lang.*;
 import accountErrors.*;
 public class Account {
-    private int PIN;
-    private int SSN;
+    protected int PIN;
+    protected int SSN;
     // Array of checking account ID's
-    private int [] accountIDChecking = new int [10];
+    protected int [] accountIDChecking = new int [10];
     // Array of savings account ID's
-    private int [] accountIDSaving = new int [10];
+    protected int [] accountIDSaving = new int [10];
     // Number of Checking Accounts
-    private int numChecking = 0;
+    protected int numChecking = 0;
     // Number of Savings Accounts
-    private int numSaving = 0;
+    protected int numSaving = 0;
     // Array of checking accounts
-    private Checking [] accountChecking = new Checking [10];
+    protected Checking [] accountChecking = new Checking [10];
     // Array of savings accounts
-    private Saving [] accountSaving = new Saving [10];
+    protected Saving [] accountSaving = new Saving [10];
 
     // Empty constructor
     public Account () {
         // Empty constructor
     }
 
+    public int getID() {
+	// Empty method. This is here so that dynamic method dispatch
+	// can be used. This method will never be called from this class.
+	return 0;
+    }
+
+    public void closeAccount() throws NoAccount {
+	// Empty method.
+	// Later add a constructor into NoAccount exception that tells it that error
+	// came from here. This line should never actually execute.
+	throw new NoAccount();
+    }
+
     // Called from Checking/Saving subclass using the super() constructor
     // when creating a new checking or savings account.
-    private Account (int PIN, int SSN, String type) throws LengthException, InvalidType {
+    protected Account (int PIN, int SSN, String type) throws LengthException, InvalidType {
         // Check if this is a checking account or a savings account
         if (type.equals("checking")) {
             // Generate a random 5 digit account ID
@@ -61,7 +74,7 @@ public class Account {
     }
 
     // Use this to determine what kind of account something is based off its ID
-    private String whichAccount (int accountID) {
+    protected String whichAccount (int accountID) {
         for (int i = 0; i < numChecking; i++) {
             if (this.accountIDChecking[i] == accountID) {
                 return "checking";
@@ -82,7 +95,7 @@ public class Account {
     }
 
     // Use this to get the account ID of the last account that was added
-    private int getAccountID (String type) {
+    protected int getAccountID (String type) {
         if (type.equals("checking")) {
             return this.accountIDChecking[numChecking-1];
         } else if (type.equals("saving")) {
@@ -93,7 +106,7 @@ public class Account {
     }
 
     // Use this to find the index of an account in the array of accounts
-    private int findIndex (int accountID, String type) throws NoAccount {
+    protected int findIndex (int accountID, String type) throws NoAccount {
         int i = 0;
         while (i < 10) {
             if (type.equals("checking")) {
@@ -157,14 +170,19 @@ public class Account {
     // Use this to close an account. Replaces the account in the array of accounts with a 0,
     // changes balance and account ID to 0. Moves all the other accounts in the array up a
     // spot to replace the old one.
-    public void closeAccount (int accountID) throws NoAccount {
+    protected void closeAccount (int accountID) throws NoAccount {
+	// System.out.println("Got to close account method");
         // Store what kind of account this is into a String
         String type = this.whichAccount(accountID);
+	// System.out.println("Got to which account method");
         // Store the index of the account in the array of accounts
         int num = this.findIndex(accountID,type);
+	// System.out.println(num);
         // Create an integer for temp storage and for how many elements are left to move up
         int temp, howManyLeft;
-        if (type.equals("checking")) {
+	if (type.equals("null")) {
+	    throw new NoAccount();
+        } else if (type.equals("checking")) {
             howManyLeft = this.numChecking - num;
             temp = this.accountIDChecking[num];
             Checking check = this.accountChecking[num];
@@ -185,133 +203,4 @@ public class Account {
         }
     }
 
-    public class Checking extends Account {
-        protected int accountID;
-        protected double balance;
-
-        // Constructor for new checking account. Called when
-        // opening a new checking account. Does not require
-        // a balance.
-        public Checking (int PIN, int SSN) throws LengthException, InvalidType {
-            super(PIN, SSN, "checking");
-            this.accountID = super.getAccountID("checking");
-        }
-
-        // Constructor for opening checking account in existing bank account.
-        public Checking (Account account) throws InvalidPIN, NoAccount {
-            account.accountIDChecking[account.numChecking] = (int)(Math.random() * 99998)+1;
-            account.accountChecking[account.numChecking] = this;
-            account.numChecking++;
-            this.accountID = account.getAccountID("checking");
-        }
-
-        // Deposit funds to checking account.
-        public double depositFunds (double funds) {
-            this.balance = balance+funds;
-            return this.balance;
-        }
-
-        public double withdrawFunds (double funds) throws LowFunds {
-            if (this.balance >= funds) {
-                this.balance -= funds;
-                return this.balance;
-            } else {
-                throw new LowFunds();
-            }
-        }
-
-        public Checking getChecking () {
-            return this;
-        }
-
-        public <T extends Checking, Account> double transferFundsChecking (T type, double funds, int accountID) throws LowFunds, NoAccount {
-            if (this.balance < funds) {
-                throw new LowFunds();
-            } else if (type.accountID != accountID) {
-                throw new NoAccount();
-            } else {
-                this.balance -= funds;
-                type.balance += funds;
-                return this.balance;
-            }
-        }
-
-        public <T extends Saving, Account> double transferFundsSaving (T type, double funds, int accountID) throws LowFunds, NoAccount {
-            if (this.balance < funds) {
-                throw new LowFunds();
-            } else if (type.accountID != accountID) {
-                throw new NoAccount();
-            } else {
-                this.balance -= funds;
-                type.balance += funds;
-                return this.balance;
-            }
-        }
-
-    }
-
-    public class Saving extends Account {
-        protected int accountID;
-        protected double balance;
-
-        // Constructor for new savings account. Called when
-        // opening a new savings account. Does not require
-        // a balance.
-        public Saving (int PIN, int SSN) throws LengthException, InvalidType {
-            super(PIN, SSN, "saving");
-            this.accountID = super.getAccountID("saving");
-        }
-
-        // Constructor for opening savings account in existing bank account
-        public Saving (Account account) throws InvalidPIN, NoAccount {
-            account.accountIDSaving[account.numSaving] = (int)(Math.random() * 99998)+1;
-            account.accountSaving[account.numSaving] = this;
-            account.numSaving++;
-            this.accountID = account.getAccountID("saving");
-        }
-
-        // Deposit funds to savings account. Returns new balance.
-        public double depositFunds (double funds) {
-            this.balance += funds;
-            return this.balance;
-        }
-
-        public double withdrawFunds (double funds) throws LowFunds {
-            if (this.balance >= funds) {
-                this.balance -= funds;
-                return this.balance;
-            } else {
-                throw new LowFunds();
-            }
-        }
-
-        public <T extends Checking, Account> double transferFundsChecking (T type, double funds, int accountID) throws LowFunds, NoAccount {
-            if (this.balance < funds) {
-                throw new LowFunds();
-            } else if (type.accountID != accountID) {
-                throw new NoAccount();
-            } else {
-                this.balance -= funds;
-                type.balance += funds;
-                return this.balance;
-            }
-        }
-
-        public <T extends Saving, Account> double transferFundsSaving (T type, double funds, int accountID) throws LowFunds, NoAccount {
-            if (this.balance < funds) {
-                throw new LowFunds();
-            } else if (type.accountID != accountID) {
-                throw new NoAccount();
-            } else {
-                this.balance -= funds;
-                type.balance += funds;
-                return this.balance;
-            }
-        }
-
-        public double getBalance () {
-            return this.balance;
-        }
-
-    }
 }
