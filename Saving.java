@@ -14,16 +14,17 @@ public class Saving extends Account {
     // opening a new savings account. Does not require
     // a balance.
     public Saving (int PIN, int SSN) throws LengthException, InvalidType {
-	super(PIN, SSN, "saving");
-	this.accountID = super.getAccountID("saving");
+	super(PIN, SSN);
+	super.addAccount(this);
+	this.accountID = super.getAccountID();
     }
 
     // Constructor for opening savings account in existing bank account
     public Saving (Account account) throws InvalidPIN, NoAccount {
-	account.accountIDSaving[account.numSaving] = (int)(Math.random() * 99998)+1;
-	account.accountSaving[account.numSaving] = this;
-	account.numSaving++;
-	this.accountID = account.getAccountID("saving");
+	account.accountIDs[account.num] = (int)(Math.random() * 99998)+1;
+	account.accounts[account.num] = this;
+	account.num++;
+	this.accountID = account.getAccountID();
     }
 
     // Deposit funds to savings account. Returns new balance.
@@ -39,6 +40,10 @@ public class Saving extends Account {
 	} else {
 	    throw new LowFunds();
 	}
+    }
+
+    public String getType () {
+	return "saving";
     }
 
     public <T extends Checking, Account> double transferFundsChecking (T type, double funds, int accountID) throws LowFunds, NoAccount {
@@ -69,13 +74,15 @@ public class Saving extends Account {
 	return this.balance;
     }
 
-    public int getID () {
+    public int getAccountID () {
 	return this.accountID;
     }
 
     public void closeAccount () throws NoAccount {
 	try {
 	    super.closeAccount(this.accountID);
+	    this.balance = 0.0;
+	    this.accountID = 0;
 	} catch (NoAccount err) {
 	    throw new NoAccount();
 	}

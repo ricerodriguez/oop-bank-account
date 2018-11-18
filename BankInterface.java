@@ -28,13 +28,17 @@ public class BankInterface {
                               "Please choose from the following:\n"+
                               "1. Open new account.\n"+
                               "2. Close account\n"+
-                              "3. Exit employee menu.\n"+
+			      "3. Open new checking account under\n"+
+			      "   existing account.\n"+
+			      "4. Open new savings account under\n"+
+			      "   existing account.\n"+
+                              "5. Exit employee menu.\n"+
                               "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"+
 			      "Current Accounts: %d\n",i);
 	    if (i>0) {
 		for (int j=0; j<i; j++) {
 		    Account temp = this.accounts[j];
-		    tempID = temp.getID();
+		    tempID = temp.getAccountID();
 		    System.out.printf("Account %d:\n"+
 				      "       ID: %d\n",j,tempID);
 		}
@@ -96,6 +100,10 @@ public class BankInterface {
                                       err.what()+
                                       "\nTry again.");
                 }
+		break;
+	    case 3:
+		System.out.printf("Opening new checking account...\n"+
+				  "Which account are you adding this to?\n");
             }
         }
     }
@@ -105,7 +113,7 @@ public class BankInterface {
         int j = 0;
         while (j < i) {
 	    Account temp = this.accounts[j];
-	    if (temp.getID() == accountID) {
+	    if (temp.getAccountID() == accountID) {
 		return j;
 	    } else {
 		j++;
@@ -129,9 +137,11 @@ public class BankInterface {
                           "bank staff to enter their password below.\n\n"+
                           "Please enter staff password:\n");
         user_in = scan.nextInt();
-        for (int j = 3; j > 0; j++) {
+        for (int j = 3; j > 0; j--) {
             if (user_in != staffPassword) {
                 System.out.println("Wrong password. You have " + j + " attempts left.");
+		user_in = scan.nextInt();
+		continue;
             } else {
                 System.out.printf("Welcome, employee!\n");
                 locked_out = false;

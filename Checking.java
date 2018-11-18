@@ -9,16 +9,17 @@ public class Checking extends Account {
     // opening a new checking account. Does not require
     // a balance.
     public Checking (int PIN, int SSN) throws LengthException, InvalidType {
-        super(PIN, SSN, "checking");
-        this.accountID = super.getAccountID("checking");
+        super(PIN, SSN);
+	super.addAccount(this);
+        this.accountID = super.getAccountID();
     }
 
     // Constructor for opening checking account in existing bank account.
     public Checking (Account account) throws InvalidPIN, NoAccount {
-        account.accountIDChecking[account.numChecking] = (int)(Math.random() * 99998)+1;
-        account.accountChecking[account.numChecking] = this;
-        account.numChecking++;
-        this.accountID = account.getAccountID("checking");
+        account.accountIDs[account.num] = (int)(Math.random() * 99998)+1;
+        account.accounts[account.num] = this;
+        account.num++;
+        this.accountID = account.getAccountID();
     }
 
     public Checking () {
@@ -48,8 +49,12 @@ public class Checking extends Account {
         }
     }
 
-    public int getID () {
+    public int getAccountID () {
         return this.accountID;
+    }
+
+    public String getType () {
+	return "checking";
     }
 
     public <T extends Checking, Account> double transferFundsChecking (T type, double funds, int accountID) throws LowFunds, NoAccount {
@@ -76,4 +81,14 @@ public class Checking extends Account {
 	}
     }
 
+    public void closeAccount () throws NoAccount {
+	try {
+	    super.closeAccount(this.accountID);
+	    this.balance = 0.0;
+	    this.accountID = 0;
+	} catch (NoAccount err) {
+	    throw new NoAccount();
+	}
+    }
+    
 }
