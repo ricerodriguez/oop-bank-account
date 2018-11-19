@@ -9,11 +9,14 @@ public class Checking extends Account {
     // Constructor for new checking account. Called when
     // opening a new checking account. Does not require
     // a balance.
-    public Checking (int PIN, int SSN) throws LengthException, InvalidType {
-        super(PIN, SSN);
-	super.addAccount(this);
-        this.accountID = super.getAccountID();
-	this.superAccount = super.getAccount();
+    public Checking (int PIN, int SSN, Account account) throws LengthException, InvalidPIN, OverwriteException {
+	account.setPIN(PIN);
+	account.setSSN(SSN);
+        account.accountIDs[account.num] = (int)(Math.random() * 99998)+1;
+        account.accounts[account.num] = this;
+        account.num++;
+	this.accountID = account.getAccountID();
+	this.superAccount = account.getAccount();
     }
 
     // Constructor for opening checking account in existing bank account.
@@ -22,7 +25,7 @@ public class Checking extends Account {
         account.accounts[account.num] = this;
         account.num++;
         this.accountID = account.getAccountID();
-	this.superAccount = super.getAccount();
+	this.superAccount = account.getAccount();
     }
 
     public Checking () {

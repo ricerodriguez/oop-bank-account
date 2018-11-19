@@ -154,4 +154,8 @@ public class Account {
     public Account getAccount () {
 	return this;
     }
+
+    public Account [] getAccounts () {
+	return this.accounts;
+    }
 }
