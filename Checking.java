@@ -4,6 +4,7 @@ import java.io.*;
 public class Checking extends Account {
     protected int accountID;
     protected double balance;
+    private Account superAccount;
 
     // Constructor for new checking account. Called when
     // opening a new checking account. Does not require
@@ -12,6 +13,7 @@ public class Checking extends Account {
         super(PIN, SSN);
 	super.addAccount(this);
         this.accountID = super.getAccountID();
+	this.superAccount = super.getAccount();
     }
 
     // Constructor for opening checking account in existing bank account.
@@ -20,6 +22,7 @@ public class Checking extends Account {
         account.accounts[account.num] = this;
         account.num++;
         this.accountID = account.getAccountID();
+	this.superAccount = super.getAccount();
     }
 
     public Checking () {
@@ -91,4 +94,7 @@ public class Checking extends Account {
 	}
     }
     
+    public Account getAccount () {
+	return super.getAccount();
+    }
 }

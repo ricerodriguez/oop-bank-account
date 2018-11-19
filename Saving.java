@@ -5,6 +5,7 @@ import java.lang.*;
 public class Saving extends Account {
     protected int accountID;
     protected double balance;
+    protected Account superAccount;
 
     public Saving () {
 	// Empty constructor
@@ -17,6 +18,7 @@ public class Saving extends Account {
 	super(PIN, SSN);
 	super.addAccount(this);
 	this.accountID = super.getAccountID();
+	this.superAccount = super.getAccount();
     }
 
     // Constructor for opening savings account in existing bank account
@@ -25,6 +27,7 @@ public class Saving extends Account {
 	account.accounts[account.num] = this;
 	account.num++;
 	this.accountID = account.getAccountID();
+	this.superAccount = super.getAccount();
     }
 
     // Deposit funds to savings account. Returns new balance.
@@ -86,6 +89,10 @@ public class Saving extends Account {
 	} catch (NoAccount err) {
 	    throw new NoAccount();
 	}
+    }
+
+    public Account getAccount () {
+	return super.getAccount();
     }
 
 }

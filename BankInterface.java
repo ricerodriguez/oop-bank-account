@@ -6,9 +6,11 @@ import accountErrors.*;
 public class BankInterface {
     // Smallest bank ever has room for 20 accounts
     Account [] accounts = new Account[20];
+    Account [] superAccounts = new Account[20];
+    int [] numAccounts = new int [20];
     Checking check = new Checking();
     Saving save = new Saving();
-    int i = 0;
+    int i = 0; // Total number of checking/saving accounts
     public BankInterface () {
 	// for (int i=0; i<20; i++) {
 	    // accounts[i] = new Account();}
@@ -16,13 +18,15 @@ public class BankInterface {
 
     public void employeeMenu () {
         Scanner scan = new Scanner(System.in);
-        int emp_in, accountID;
+        int emp_in, accountID, accountIndex=0;
         int usr_pin,usr_ssn;
         String usr_type;
 	int ind;
 	int tempID;
 	String [] accTypes = new String [20];
         boolean menu_up = true;
+	int k = 0;
+	String prettyType;
         while (menu_up) {
             System.out.printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"+
                               "Please choose from the following:\n"+
@@ -37,10 +41,24 @@ public class BankInterface {
 			      "Current Accounts: %d\n",i);
 	    if (i>0) {
 		for (int j=0; j<i; j++) {
+		    // Grab the account in the array at this index
 		    Account temp = this.accounts[j];
+		    // Grab the Account object containing this account
+		    Account supertemp = temp.getAccount();
+		    // If the object that contains it is the same as
+		    // if (this.superAccounts[k] != supertemp) {
+		    // 	if (this.superAccounts[k+1] == supertemp) {
+		    // 	    k++;
+		    // 	    System.out.printf("Account %d:\n",k);
+		    // 	} else { System.out.printf("Error printing.\n");}
+		    // }
+		    System.out.println(temp);
+		    System.out.println(supertemp);
+		    // System.out.println(this.superAccounts[j]);
 		    tempID = temp.getAccountID();
-		    System.out.printf("Account %d:\n"+
-				      "       ID: %d\n",j,tempID);
+		    prettyType = accTypes[j];
+		    prettyType = prettyType.substring(0,1).toUpperCase()+prettyType.substring(1).toLowerCase();
+		    System.out.printf("    %s  ID: %d\n",prettyType,tempID);
 		}
 
 		System.out.printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
@@ -65,24 +83,26 @@ public class BankInterface {
                     if (usr_type.equals("checking")) {
                         // checking[i] = new Account().new Checking (usr_pin,usr_ssn);
 			this.accounts[i] = new Checking (usr_pin,usr_ssn);
+			this.superAccounts[i] = this.accounts[i].getAccount();
 			accTypes[i] = "checking";
                         i++;
                     } else if (usr_type.equals("saving")) {
                         // saving[i] = new Account().new Saving (usr_pin,usr_ssn);
 			this.accounts[i] = new Saving (usr_pin,usr_ssn);
+			this.superAccounts[i] = this.accounts[i].getAccount();
 			accTypes[i] = "saving";
                         i++;
                     } else {
-                        System.out.printf("Invalid selection. Back to menu.");
+                        System.out.printf("Invalid selection. Back to menu.\n");
                     }
                 } catch (LengthException err) {
                     System.err.printf("ERROR!!\n"+
                                       err.what()+
-                                      "\nTry again.");
+                                      "\nTry again.\n");
                 } catch (InvalidType err) {
                     System.err.printf("ERROR!!\n"+
                                       err.what()+
-                                      "\nTry again.");
+                                      "\nTry again.\n");
 		}
 		
                 break;
@@ -98,12 +118,41 @@ public class BankInterface {
                 } catch (NoAccount err) {
                     System.err.printf("ERROR!!\n"+
                                       err.what()+
-                                      "\nTry again.");
+                                      "\nTry again.\n");
                 }
 		break;
 	    case 3:
 		System.out.printf("Opening new checking account...\n"+
 				  "Which account are you adding this to?\n");
+		accountIndex = scan.nextInt();
+		System.out.printf("Opening a new account under Account %d...\n"+
+				  "What kind of account is this?\n"+
+				  "Please specify 'checking' or saving'.\n",accountIndex);
+		scan.nextLine();
+		usr_type = scan.nextLine();
+                try {
+                    if (usr_type.equals("checking")) {
+                        // checking[i] = new Account().new Checking (usr_pin,usr_ssn);
+			Account temp = this.accounts[accountIndex];
+			this.accounts[accountIndex] = new Checking (temp);
+			accTypes[accountIndex] = "checking";
+                    } else if (usr_type.equals("saving")) {
+			Account temp = this.accounts[accountIndex];
+                        // saving[i] = new Account().new Saving (usr_pin,usr_ssn);
+			this.accounts[accountIndex] = new Saving (temp);
+			accTypes[accountIndex] = "saving";
+                    } else {
+                        System.out.printf("Invalid selection. Back to menu.\n");
+                    }
+                } catch (InvalidPIN err) {
+                    System.err.printf("ERROR!!\n"+
+                                      err.what()+
+                                      "\nTry again.\n");
+                } catch (NoAccount err) {
+                    System.err.printf("ERROR!!\n"+
+                                      err.what()+
+                                      "\nTry again.\n");
+		}
             }
         }
     }

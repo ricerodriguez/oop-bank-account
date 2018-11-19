@@ -151,4 +151,7 @@ public class Account {
 	}
     }
 
+    public Account getAccount () {
+	return this;
+    }
 }
