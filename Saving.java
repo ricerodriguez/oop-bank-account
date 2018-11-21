@@ -5,6 +5,7 @@ import java.lang.*;
 public class Saving extends Account {
     protected int accountID;
     protected double balance;
+    protected Account superAccount;
 
     public Saving () {
 	// Empty constructor
@@ -13,10 +14,14 @@ public class Saving extends Account {
     // Constructor for new savings account. Called when
     // opening a new savings account. Does not require
     // a balance.
-    public Saving (int PIN, int SSN) throws LengthException, InvalidType {
-	super(PIN, SSN);
-	super.addAccount(this);
-	this.accountID = super.getAccountID();
+    public Saving (int PIN, int SSN, Account account) throws LengthException, OverwriteException, InvalidPIN {
+	account.setPIN(PIN);
+	account.setSSN(SSN);
+        account.accountIDs[account.num] = (int)(Math.random() * 99998)+1;
+        account.accounts[account.num] = this;
+        account.num++;
+	this.accountID = account.getAccountID();
+	this.superAccount = account.getAccount();
     }
 
     // Constructor for opening savings account in existing bank account
@@ -25,6 +30,7 @@ public class Saving extends Account {
 	account.accounts[account.num] = this;
 	account.num++;
 	this.accountID = account.getAccountID();
+	this.superAccount = account.getAccount();
     }
 
     // Deposit funds to savings account. Returns new balance.
@@ -86,6 +92,10 @@ public class Saving extends Account {
 	} catch (NoAccount err) {
 	    throw new NoAccount();
 	}
+    }
+
+    public Account getAccount () {
+	return super.getAccount();
     }
 
 }

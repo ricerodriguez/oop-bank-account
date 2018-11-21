@@ -4,22 +4,29 @@ import java.io.*;
 public class Checking extends Account {
     protected int accountID;
     protected double balance;
+    private Account superAccount;
 
     // Constructor for new checking account. Called when
     // opening a new checking account. Does not require
     // a balance.
-    public Checking (int PIN, int SSN) throws LengthException, InvalidType {
-        super(PIN, SSN);
-	super.addAccount(this);
-        this.accountID = super.getAccountID();
+    public Checking (int PIN, int SSN, Account account) throws LengthException, InvalidPIN, OverwriteException {
+	account.setPIN(PIN);
+	account.setSSN(SSN);
+        account.accountIDs[account.num] = (int)(Math.random() * 99998)+1;
+        account.accounts[account.num] = this;
+        account.num++;
+	this.accountID = account.getAccountID();
+	this.superAccount = account.getAccount();
     }
 
     // Constructor for opening checking account in existing bank account.
     public Checking (Account account) throws InvalidPIN, NoAccount {
         account.accountIDs[account.num] = (int)(Math.random() * 99998)+1;
+	System.out.println(account.num);
         account.accounts[account.num] = this;
         account.num++;
         this.accountID = account.getAccountID();
+	this.superAccount = account.getAccount();
     }
 
     public Checking () {
@@ -91,4 +98,7 @@ public class Checking extends Account {
 	}
     }
     
+    public Account getAccount () {
+	return super.getAccount();
+    }
 }
