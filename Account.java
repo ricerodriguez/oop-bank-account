@@ -8,6 +8,8 @@ public class Account {
     protected int [] accountIDs = new int [10];
     // Array of accounts (checking or saving)
     protected Account [] accounts = new Account [10];
+    // protected Account checking;
+    // protected Account saving;
     // Array of account types
     protected String [] accountTypes = new String [10]; 
     // Number of checking or savings accounts
@@ -158,4 +160,5 @@ public class Account {
     public Account [] getAccounts () {
 	return this.accounts;
     }
+
 }

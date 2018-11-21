@@ -22,6 +22,7 @@ public class Checking extends Account {
     // Constructor for opening checking account in existing bank account.
     public Checking (Account account) throws InvalidPIN, NoAccount {
         account.accountIDs[account.num] = (int)(Math.random() * 99998)+1;
+	System.out.println(account.num);
         account.accounts[account.num] = this;
         account.num++;
         this.accountID = account.getAccountID();

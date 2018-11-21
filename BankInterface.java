@@ -4,30 +4,23 @@ import java.util.*;
 import accountErrors.*;
 
 public class BankInterface {
-    // Smallest bank ever has room for 20 accounts
-    Account [] accounts = new Account[20];
-    Account [] superAccounts = new Account[20];
-    Account [] tempAccounts = new Account[10];
+    // Smallest bank ever has room for 100 accounts
+    // Array of 100 total checking/savings accounts
+    Account [] accounts = new Account[100];
+    // Array of 10 total accounts
+    Account [] superAccounts = new Account[10];
+    // This is temporary because it's used as a "container" to hold
+    // the accounts under each element in the superAccounts array
+    // as the superAccounts array is traversed.
+    Account [] subAccountsEach = new Account[10];
     int [] numAccounts = new int [20];
     Checking check = new Checking();
     Saving save = new Saving();
     int i = 0; // Total number of checking/saving accounts
+    int numSuper = 0; // Total number of accounts which contain checking/savings
     public BankInterface () {
 	// for (int i=0; i<20; i++) {
 	    // accounts[i] = new Account();}
-    }
-
-    public static Account [] addToArr (Account [] arr, int pos, Account acc) {
-	Account [] result = new Account [20];
-	// Stores first half of array into new array
-	for(int i = 0; i < pos; i++)
-	    result[i] = arr[i];
-	// Stick new number in position at midpoint of array
-	result[pos] = acc;
-	// Stores last half of array into new array
-	for(int i = pos + 1; i < 20; i++)
-	    result[i] = arr[i - 1];
-	return result;
     }
 
     public void employeeMenu () {
@@ -37,10 +30,12 @@ public class BankInterface {
         String usr_type;
 	int ind;
 	int tempID;
-	String [] accTypes = new String [20];
+	String [] accTypes = new String [100];
         boolean menu_up = true;
 	// int k = 0;
 	String prettyType;
+	List<Account> listSuperAccounts = new ArrayList<Account>();
+	List<Account> listAccounts = new ArrayList<Account>();
         while (menu_up) {
             System.out.printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"+
                               "Please choose from the following:\n"+
@@ -54,30 +49,25 @@ public class BankInterface {
                               "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"+
 			      "Current Accounts: %d\n",i);
 	    if (i>0) {
-		for (int j=0; j<i; j++) {
+		for (int j=0; j<numSuper; j++) {
 		    // Grab the account in the array at this index
-		    Account temp = this.accounts[j];
-		    // Grab the Account object containing this account
 		    Account supertemp = this.superAccounts[j];
-		    this.tempAccounts = supertemp.getAccounts();
-		    // Format the type of the string so it's prettier for printing
-		    prettyType = accTypes[j];
-		    prettyType = prettyType.substring(0,1).toUpperCase()+prettyType.substring(1).toLowerCase();
-		    // Grab the account ID 
-		    tempID = temp.getAccountID();
-		    if (tempAccounts.length > 1) {
-			for (int k=0; k<tempAccounts.length; k++) {
-			    int tempID2 = this.tempAccounts[k];
-			    System.out.printf("    %s  ID: %d\n",prettyType,tempID);
-			
-			    // FINISH THIS !!!!!!!
-			    // I'm trying to make it say
-			    // Account x:
-			    //     Checking ID: xxxx
-			    //     Saving ID: xxxx
-			    //     Saving ID: xxxx
-			    // Account y:
-			    // ....etc
+		    // Grab the checking/savings accounts under
+		    // this account at this index
+		    this.subAccountsEach = supertemp.getAccounts();
+		    // Print which account this is
+		    System.out.printf("Account %d:\n",j);
+		    for (int k=0; k<subAccountsEach.length; k++) {
+			if (subAccountsEach[k]!=null) {
+			    prettyType = this.subAccountsEach[k].getType();
+			    // Format the type of the string so it's prettier for printing
+			    prettyType = prettyType.substring(0,1).toUpperCase()+prettyType.substring(1).toLowerCase();
+			    int tempID2 = this.subAccountsEach[k].getAccountID();
+			    System.out.printf("    %s  ID: %d\n",prettyType,tempID2);
+			} else {
+			    break;
+			}
+		    }
 		}
 
 		System.out.printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
@@ -105,12 +95,14 @@ public class BankInterface {
 			this.accounts[i] = new Checking(this.superAccounts[i]);
 			accTypes[i] = "checking";
                         i++;
+			numSuper++;
                     } else if (usr_type.equals("saving")) {
                         // saving[i] = new Account().new Saving (usr_pin,usr_ssn);
 			this.superAccounts[i] = new Account(usr_pin,usr_ssn);
 			this.accounts[i] = new Saving(this.superAccounts[i]);
 			accTypes[i] = "saving";
                         i++;
+			numSuper++;
                     } else {
                         System.out.printf("Invalid selection. Back to menu.\n");
                     }
@@ -158,14 +150,25 @@ public class BankInterface {
                 try {
                     if (usr_type.equals("checking")) {
 			Account temp = this.superAccounts[accountIndex];
-			this.superAccounts = BankInterface.addToArr (this.superAccounts, accountIndex, temp);
+			listSuperAccounts.add(accountIndex,temp);
+			// this.superAccounts = BankInterface.addToArr (this.superAccounts, accountIndex, temp);
+			this.superAccounts = listSuperAccounts.toArray(new Account[10]);
 			Account newAcc = new Checking(temp);
-		        this.accounts = BankInterface.addToArr (this.accounts, accountIndex, newAcc);
+		        // this.accounts = BankInterface.addToArr (this.accounts, accountIndex, newAcc);
+			listAccounts.add(accountIndex,newAcc);
+			this.accounts = listAccounts.toArray(new Account[100]);
 			accTypes[accountIndex] = "checking";
+			i++;
                     } else if (usr_type.equals("saving")) {
 			Account temp = this.superAccounts[accountIndex];
 			Account newAcc = new Saving (temp);
-		        this.accounts = BankInterface.addToArr (this.accounts, accountIndex, newAcc);
+		        // this.accounts = BankInterface.addToArr (this.accounts, accountIndex, newAcc);
+			listSuperAccounts.add(accountIndex,temp);
+			this.superAccounts = listSuperAccounts.toArray(new Account[10]);
+			listAccounts.add(accountIndex,newAcc);
+			this.accounts = listAccounts.toArray(new Account[100]);
+			accTypes[accountIndex] = "saving";
+			i++;
                     } else {
                         System.out.printf("Invalid selection. Back to menu.\n");
                     }
@@ -177,6 +180,8 @@ public class BankInterface {
                     System.err.printf("ERROR!!\n"+
                                       err.what()+
                                       "\nTry again.\n");
+		} finally {
+		    break;
 		}
             }
         }
