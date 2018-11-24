@@ -8,8 +8,6 @@ public class Account {
     protected int [] accountIDs = new int [10];
     // Array of accounts (checking or saving)
     protected Account [] accounts = new Account [10];
-    // protected Account checking;
-    // protected Account saving;
     // Array of account types
     protected String [] accountTypes = new String [10]; 
     // Number of checking or savings accounts
@@ -30,6 +28,18 @@ public class Account {
 	// Later add a constructor into NoAccount exception that tells it that error
 	// came from here. This line should never actually execute.
 	throw new NoAccount();
+    }
+
+    public void clearAccount () {
+	return;
+    }
+
+    public double depositFunds(double funds) throws LowFunds {
+	return -1.0;
+    }
+
+    public double withdrawFunds(double funds) throws LowFunds {
+	return -1.0;
     }
 
     // Called from Checking/Saving subclass using the super() constructor
@@ -82,7 +92,7 @@ public class Account {
     // Use this to find the index of an account in the array of accounts
     protected int findIndex (int accountID) throws NoAccount {
         int i = 0;
-        while (i < 10) {
+        while (i <= 10) {
 	   if (this.accountIDs[i] == accountID) {
 	       return i;
 	   } else {
@@ -93,14 +103,25 @@ public class Account {
         // return -1;
     }
 
+    protected int findIndex (Account account) throws NoAccount {
+        int i = 0;
+        while (i <= 10) {
+	   if (this.accounts[i] == account) {
+	       return i;
+	   } else {
+	       i++;
+	   }
+        }
+	throw new NoAccount();
+        // return -1;
+    }
+
     // Use this from the main program
-    public boolean validatePIN (int PIN, int accountID, String type) throws InvalidPIN, NoAccount {
+    public boolean validatePIN (int PIN) throws InvalidPIN {
         if (this.PIN != PIN) {
             throw new InvalidPIN();
-        } else if (this.whichAccount(accountID).equals(type)) {
-            return true;
         } else {
-            throw new NoAccount();
+            return true;
         }
     }
 
@@ -135,21 +156,22 @@ public class Account {
     // Use this to close an account. Replaces the account in the array of accounts with a 0,
     // changes balance and account ID to 0. Moves all the other accounts in the array up a
     // spot to replace the old one.
-    protected void closeAccount (int accountID) throws NoAccount {
-	// System.out.println("Got to close account method");
-        // Store what kind of account this is into a String
-        String type = this.whichAccount(accountID);
-	// System.out.println("Got to which account method");
+    public void closeAccount (Account account) throws NoAccount {
         // Store the index of the account in the array of accounts
-        int numPartial = this.findIndex(accountID);
-	int numTotal = this.num;
-	// System.out.println(num);
+	try {
+	    int numPartial = this.findIndex(account);
+	    int numTotal = this.num;
         // Create an integer for temp storage and for how many elements are left to move up
-        int temp, howManyLeft;
-	howManyLeft = numTotal - numPartial;
-	temp = this.accountIDs[numPartial];
-	for (int i=numPartial; i<howManyLeft;i++) {
-	    this.accountIDs[i]=this.accountIDs[i+1];
+	    int howManyLeft;
+	    howManyLeft = numTotal - numPartial;
+	    System.out.println(howManyLeft);
+	    for (int i=numPartial; i<howManyLeft;i++) {
+		this.accountIDs[i]=this.accountIDs[i+1];
+		this.accounts[i]=this.accounts[i+1];
+		this.accountTypes[i]=this.accountTypes[i+1];
+	    }
+	} catch (NoAccount err) {
+	    throw new NoAccount();
 	}
     }
 

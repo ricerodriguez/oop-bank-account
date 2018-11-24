@@ -28,7 +28,7 @@ public class BankInterface {
         int emp_in, accountID, accountIndex=0;
         int usr_pin,usr_ssn;
         String usr_type;
-	int ind;
+	int ind=0;
 	int tempID;
 	String [] accTypes = new String [100];
         boolean menu_up = true;
@@ -90,14 +90,12 @@ public class BankInterface {
                 usr_type = scan.nextLine();
                 try {
                     if (usr_type.equals("checking")) {
-                        // checking[i] = new Account().new Checking (usr_pin,usr_ssn);
 			this.superAccounts[i] = new Account(usr_pin,usr_ssn);
 			this.accounts[i] = new Checking(this.superAccounts[i]);
 			accTypes[i] = "checking";
                         i++;
 			numSuper++;
                     } else if (usr_type.equals("saving")) {
-                        // saving[i] = new Account().new Saving (usr_pin,usr_ssn);
 			this.superAccounts[i] = new Account(usr_pin,usr_ssn);
 			this.accounts[i] = new Saving(this.superAccounts[i]);
 			accTypes[i] = "saving";
@@ -125,13 +123,35 @@ public class BankInterface {
                 System.out.printf("Closing account...\n"+
                                   "Enter an account ID you wish to close.\n");
                 accountID = scan.nextInt();
+		int k=0;
                 try {
-		    ind = this.findIndex(accountID);
-                    Account temp = accounts[ind];
-                    temp.closeAccount();
+		    for (int j = 0; j<numSuper; j++) {
+		    	supertemp = this.superAccounts[j];
+		    	this.subAccountsEach = supertemp.getAccounts();
+		    	while (k<subAccountsEach.length) {
+		    	    if (subAccountsEach[k]!=null) {
+		    		ind = this.findIndex(accountID);
+		    		if (subAccountsEach[k] == accounts[ind]) {
+		    		    break;
+		    		} else {
+		    		    k++;
+		    		    continue;
+		    		}
+		    	    }
+		    	}
+		    	if (subAccountsEach[k] == accounts[ind]) {
+		    	    break;
+		    	} else {
+		    	    continue;
+		    	}
+		    }
+		    Account supertemp = getSuper(accountID);
+		    supertemp.closeAccount(accounts[ind]);
+		    System.out.println(accounts[ind]);
+                    accounts[ind].clearAccount();
                     i--;
                 } catch (NoAccount err) {
-                    System.err.printf("ERROR!!\n"+
+		    System.err.printf("ERROR!!\n"+
                                       err.what()+
                                       "\nTry again.\n");
                 } finally {
@@ -142,36 +162,14 @@ public class BankInterface {
 		System.out.printf("Opening new checking account...\n"+
 				  "Which account are you adding this to?\n");
 		accountIndex = scan.nextInt();
-		System.out.printf("Opening a new account under Account %d...\n"+
-				  "What kind of account is this?\n"+
-				  "Please specify 'checking' or saving'.\n",accountIndex);
-		scan.nextLine();
-		usr_type = scan.nextLine();
+		System.out.printf("Opening a new checking account under Account %d...\n",accountIndex);
                 try {
-                    if (usr_type.equals("checking")) {
-			Account temp = this.superAccounts[accountIndex];
-			listSuperAccounts.add(accountIndex,temp);
-			// this.superAccounts = BankInterface.addToArr (this.superAccounts, accountIndex, temp);
-			this.superAccounts = listSuperAccounts.toArray(new Account[10]);
-			Account newAcc = new Checking(temp);
-		        // this.accounts = BankInterface.addToArr (this.accounts, accountIndex, newAcc);
-			listAccounts.add(accountIndex,newAcc);
-			this.accounts = listAccounts.toArray(new Account[100]);
-			accTypes[accountIndex] = "checking";
-			i++;
-                    } else if (usr_type.equals("saving")) {
-			Account temp = this.superAccounts[accountIndex];
-			Account newAcc = new Saving (temp);
-		        // this.accounts = BankInterface.addToArr (this.accounts, accountIndex, newAcc);
-			listSuperAccounts.add(accountIndex,temp);
-			this.superAccounts = listSuperAccounts.toArray(new Account[10]);
-			listAccounts.add(accountIndex,newAcc);
-			this.accounts = listAccounts.toArray(new Account[100]);
-			accTypes[accountIndex] = "saving";
-			i++;
-                    } else {
-                        System.out.printf("Invalid selection. Back to menu.\n");
-                    }
+		    Account temp = this.superAccounts[accountIndex];
+		    Account newAcc = new Checking(temp);
+		    listAccounts.add(accountIndex,newAcc);
+		    this.accounts = listAccounts.toArray(new Account[100]);
+		    accTypes[accountIndex] = "checking";
+		    i++;
                 } catch (InvalidPIN err) {
                     System.err.printf("ERROR!!\n"+
                                       err.what()+
@@ -183,16 +181,135 @@ public class BankInterface {
 		} finally {
 		    break;
 		}
+	    
+	    case 4:
+		System.out.printf("Opening new savings account...\n"+
+				  "Which account are you adding this to?\n");
+		accountIndex = scan.nextInt();
+		System.out.printf("Opening a new savings account under Account %d...\n",accountIndex);
+		try {
+		    Account temp = this.superAccounts[accountIndex];
+		    Account newAcc = new Saving (temp);
+		    listAccounts.add(accountIndex,newAcc);
+		    this.accounts = listAccounts.toArray(new Account[100]);
+		    accTypes[accountIndex] = "saving";
+		    i++;
+                } catch (InvalidPIN err) {
+                    System.err.printf("ERROR!!\n"+
+                                      err.what()+
+                                      "\nTry again.\n");
+                } catch (NoAccount err) {
+                    System.err.printf("ERROR!!\n"+
+                                      err.what()+
+                                      "\nTry again.\n");
+		} finally {
+		    break;
+		}
+
+	    case 5:
+		System.out.printf("Thank you valuable employee!\n"+
+				  "Exiting to customer menu...\n");
+		menu_up = false;
             }
         }
+    }
+
+    public void customerMenu() {
+	Scanner scan = new Scanner(System.in);
+	boolean menu_up = true, isValidPIN = false;
+	int accountID,PIN=0,ind,k=0;
+	Account temp,supertemp;
+	supertemp = this.accounts[0];
+	while (menu_up) {
+	     System.out.printf("Welcome! If you have an account\n"+
+			       "with us, please enter your account\n"+
+			       "ID for more options.\n");
+	     accountID = scan.nextInt();
+	     ind = this.findIndex(accountID);
+	     if (ind == -1) {
+		 System.out.printf("Hmm, we don't have an account\n"+
+				   "with that ID. Try again.\n");
+		 continue;
+	     } else {
+		 temp = this.accounts[ind];
+		 // Get the superaccount of the account ID
+		 for (int j = 0; j<numSuper; j++) {
+		     supertemp = this.superAccounts[j];
+		     this.subAccountsEach = supertemp.getAccounts();
+		     while (k<subAccountsEach.length) {
+			 if (subAccountsEach[k]!=null) {
+			     ind = this.findIndex(accountID);
+			     if (subAccountsEach[k] == accounts[ind]) {
+				 break;
+			     } else {
+				 k++;
+				 continue;
+			     }
+			 }
+		     }
+		     if (subAccountsEach[k] == accounts[ind]) {
+			 break;
+		     } else {
+			 continue;
+		     }
+		 }
+		 System.out.printf("Please enter your PIN.\n");
+		 PIN = scan.nextInt();
+		 try {
+		     isValidPIN = supertemp.validatePIN(PIN);
+		 } catch (InvalidPIN err) {
+		     isValidPIN = false;
+		     System.err.printf("ERROR!!\n"+
+				       err.what()+
+				       "\nTry again.\n");
+		     continue;
+		 }
+
+		 // System.out.printf("");
+		     
+	     }
+	}
+    }
+
+    public Account getSuper(int accountID) {
+	int k = 0;
+	int index = 0;
+	Account supertemp;
+	for (int i = 0; i<numSuper; i++) {
+	    supertemp = this.superAccounts[i];
+	    this.subAccountsEach = supertemp.getAccounts();
+	    while (k<subAccountsEach.length) {
+		if (subAccountsEach[k]!=null) {
+		    index = this.findIndex(accountID);
+		    if (subAccountsEach[k] == accounts[index]) {
+			return supertemp;
+		    } else {
+			k++;
+			continue;
+		    }
+		}
+	    }
+	}
+	return null;
     }
 
     
     public int findIndex (int accountID) {
         int j = 0;
-        while (j < i) {
-	    Account temp = this.accounts[j];
-	    if (temp.getAccountID() == accountID) {
+        while (j < 100) {
+	    if (this.accounts[j].getAccountID() == accountID) {
+		return j;
+	    } else {
+		j++;
+	    }
+        }
+        return -1;
+    }
+    
+    public int findIndex (Account account) {
+        int j = 0;
+        while (j < 100) {
+	    if (this.accounts[j] == account) {
 		return j;
 	    } else {
 		j++;
@@ -233,6 +350,7 @@ public class BankInterface {
             return;
         } else {
             banksy.employeeMenu();
+	    banksy.customerMenu();
         }
     }
 }
