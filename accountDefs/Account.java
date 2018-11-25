@@ -1,3 +1,5 @@
+package accountDefs;
+
 import java.io.*;
 import java.lang.*;
 import accountErrors.*;
@@ -17,7 +19,7 @@ public class Account {
     public Account () {
         // Empty constructor
     }
-
+    // ~~~~~~ THESE METHODS ARE OVERRIDDEN IN SUBCLASSES: ~~~~~~
     public String getType() {
 	// Empty method. This should never actually execute.
 	return "null";
@@ -41,10 +43,9 @@ public class Account {
     public double withdrawFunds(double funds) throws LowFunds {
 	return -1.0;
     }
+    // ~~~~~~ THESE METHODS ARE OVERRIDDEN IN SUBCLASSES^ ~~~~~~
 
-    // Called from Checking/Saving subclass using the super() constructor
-    // when creating a new checking or savings account.
-    protected Account (int PIN, int SSN) throws LengthException {
+    public Account (int PIN, int SSN) throws LengthException {
         // Check if this is a checking account or a savings account
 	// Generate a random 5 digit account ID
 	this.accountIDs[num] = (int)(Math.random() * 99998)+1;
@@ -85,14 +86,14 @@ public class Account {
     }
 
     // Use this to get the account ID of the last account that was added
-    protected int getAccountID () {
+    public int getAccountID () {
 	return this.accountIDs[this.num-1];
     }
 
     // Use this to find the index of an account in the array of accounts
     protected int findIndex (int accountID) throws NoAccount {
         int i = 0;
-        while (i <= 10) {
+        while (this.accountIDs[i] != 0) {
 	   if (this.accountIDs[i] == accountID) {
 	       return i;
 	   } else {
@@ -105,7 +106,7 @@ public class Account {
 
     protected int findIndex (Account account) throws NoAccount {
         int i = 0;
-        while (i <= 10) {
+        while (this.accounts[i] != null) {
 	   if (this.accounts[i] == account) {
 	       return i;
 	   } else {
