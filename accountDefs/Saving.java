@@ -1,3 +1,5 @@
+package accountDefs;
+
 import accountErrors.*;
 import java.io.*;
 import java.lang.*;
@@ -52,29 +54,47 @@ public class Saving extends Account {
 	return "saving";
     }
 
-    public <T extends Checking, Account> double transferFundsChecking (T type, double funds, int accountID) throws LowFunds, NoAccount {
+    public double transferFunds (Account account, double funds, int accountID) throws LowFunds, NoAccount {
 	if (this.balance < funds) {
 	    throw new LowFunds();
-	} else if (type.accountID != accountID) {
-	    throw new NoAccount();
 	} else {
+	    int index;
+	    Account recipient;
 	    this.balance -= funds;
-	    type.balance += funds;
-	    return this.balance;
+	    try {
+		index = account.findIndex(accountID);
+		recipient = account.accounts[index];
+		recipient.depositFunds(funds);
+	    } catch (NoAccount err) {
+		this.balance += funds;
+		throw new NoAccount();
+	    }
 	}
+	return this.balance;
     }
+    // public <T extends Checking, Account> double transferFundsChecking (T type, double funds, int accountID) throws LowFunds, NoAccount {
+    // 	if (this.balance < funds) {
+    // 	    throw new LowFunds();
+    // 	} else if (type.accountID != accountID) {
+    // 	    throw new NoAccount();
+    // 	} else {
+    // 	    this.balance -= funds;
+    // 	    type.balance += funds;
+    // 	    return this.balance;
+    // 	}
+    // }
 
-    public <T extends Saving, Account> double transferFundsSaving (T type, double funds, int accountID) throws LowFunds, NoAccount {
-	if (this.balance < funds) {
-	    throw new LowFunds();
-	} else if (type.accountID != accountID) {
-	    throw new NoAccount();
-	} else {
-	    this.balance -= funds;
-	    type.balance += funds;
-	    return this.balance;
-	}
-    }
+    // public <T extends Saving, Account> double transferFundsSaving (T type, double funds, int accountID) throws LowFunds, NoAccount {
+    // 	if (this.balance < funds) {
+    // 	    throw new LowFunds();
+    // 	} else if (type.accountID != accountID) {
+    // 	    throw new NoAccount();
+    // 	} else {
+    // 	    this.balance -= funds;
+    // 	    type.balance += funds;
+    // 	    return this.balance;
+    // 	}
+    // }
 
     public double getBalance () {
 	return this.balance;
@@ -84,14 +104,19 @@ public class Saving extends Account {
 	return this.accountID;
     }
 
-    public void closeAccount () throws NoAccount {
+    public void closeAccount (Account account) throws NoAccount {
 	try {
-	    super.closeAccount(this.accountID);
+	    account.closeAccount(this);
 	    this.balance = 0.0;
 	    this.accountID = 0;
 	} catch (NoAccount err) {
 	    throw new NoAccount();
 	}
+    }
+
+    public void clearAccount () {
+	this.balance = 0.0;
+	this.accountID = 0;
     }
 
     public Account getAccount () {
