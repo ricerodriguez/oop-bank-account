@@ -217,7 +217,7 @@ public class BankInterface {
         }
     }
 
-    public void customerMenu() {
+    public Account customerInitialMenu() {
 	Scanner scan = new Scanner(System.in);
 	boolean menu_up = true, isValidPIN = false;
 	int accountID,PIN=0,ind,k=0;
@@ -236,41 +236,143 @@ public class BankInterface {
 	     } else {
 		 temp = this.accounts[ind];
 		 // Get the superaccount of the account ID
-		 for (int j = 0; j<numSuper; j++) {
-		     supertemp = this.superAccounts[j];
-		     Account [] subAccountsEach = supertemp.getAccounts();
-		     while (k<subAccountsEach.length) {
-			 if (subAccountsEach[k]!=null) {
-			     ind = this.findIndex(accountID, this.accounts);
-			     if (subAccountsEach[k] == accounts[ind]) {
-				 break;
-			     } else {
-				 k++;
-				 continue;
-			     }
+		 supertemp = getSuper(accountID);
+		 // for (int j = 0; j<numSuper; j++) {
+		 //     supertemp = this.superAccounts[j];
+		 //     Account [] subAccountsEach = supertemp.getAccounts();
+		 //     while (k<subAccountsEach.length) {
+		 // 	 if (subAccountsEach[k]!=null) {
+		 // 	     ind = this.findIndex(accountID, this.accounts);
+		 // 	     if (subAccountsEach[k] == accounts[ind]) {
+		 // 		 break;
+		 // 	     } else {
+		 // 		 k++;
+		 // 		 continue;
+		 // 	     }
+		 // 	 }
+		 //     }
+		 //     if (subAccountsEach[k] == accounts[ind]) {
+		 // 	 break;
+		 //     } else {
+		 // 	 continue;
+		 //     }
+		 // }
+		 for (int i=0; i<3; i++) {
+		     if (!isValidPIN) {
+			 System.out.printf("Please enter your PIN.\n");
+			 PIN = scan.nextInt();
+			 try {
+			     isValidPIN = supertemp.validatePIN(PIN);
+			 } catch (InvalidPIN err) {
+			     isValidPIN = false;
+			     System.err.printf("ERROR!!\n"+
+					       err.what()+
+					       "\nTry again.\n");
+			     continue;
 			 }
-		     }
-		     if (subAccountsEach[k] == accounts[ind]) {
-			 break;
 		     } else {
-			 continue;
+			 break;
 		     }
-		 }
-		 System.out.printf("Please enter your PIN.\n");
-		 PIN = scan.nextInt();
-		 try {
-		     isValidPIN = supertemp.validatePIN(PIN);
-		 } catch (InvalidPIN err) {
-		     isValidPIN = false;
-		     System.err.printf("ERROR!!\n"+
-				       err.what()+
-				       "\nTry again.\n");
-		     continue;
 		 }
 
-		 // System.out.printf("");
+		 if (isValidPIN) {
+		     menu_up = false;
+		     return temp; 
+		 } else {
+		     System.out.printf("You are out of attempts.\n"+
+				       "Try again later.\n");
+		     continue;
+		 }
 		     
 	     }
+	}
+	return null;
+    }
+
+    public void customerMenu (Account account) {
+	boolean menu_up = true;
+	int menu_choice = 0;
+	double last_deposit = 0.0;
+	Scanner scan = new Scanner(System.in);
+	System.out.println("Welcome to your account!");
+	while (menu_up) {
+	    System.out.printf("Please make a selection:\n"+
+			      "1. View balance.\n"+
+			      "2. Deposit funds.\n"+
+			      "3. Withdraw funds.\n"+
+			      "4. Transfer funds.\n"+
+			      "5. View last deposit.\n"+
+			      "6. Cancel transaction.\n");
+	    menu_choice = scan.nextInt();
+	    switch (menu_choice) {
+	    case 1:
+		double balance = account.getBalance();
+		System.out.printf("Your account balance is\n"+
+				  "$%,.2f%n",balance);
+		break;
+	    case 2:
+		System.out.printf("How much would you like\n"+
+				  "to deposit?\n");
+		double deposit = scan.nextDouble();
+		last_deposit = account.depositFunds(deposit);
+		System.out.printf("Done. Returning to menu.\n");
+		break;
+	    case 3:
+		System.out.printf("How much would you like\n"+
+				  "to withdraw?\n");
+		double withdrawal = scan.nextDouble();
+		try {
+		    account.withdrawFunds(withdrawal);
+		    System.out.printf("Done. Returning to menu.\n");
+		} catch (LowFunds err) {
+                    System.err.printf("ERROR!!\n"+
+                                      err.what()+
+                                      "\nTry again.\n");
+		} finally {
+		    break;
+		}
+		    
+	    case 4:
+		System.out.printf("Which account are you\n"+
+				  "transferring funds to?\n"+
+				  "Please enter a valid\n"+
+				  "account ID registered\n"+
+				  "with this bank.\n");
+		int accountID = scan.nextInt();
+		int accountIndex = BankInterface.findIndex(accountID,this.accounts);
+		if (accountIndex >= 0) {
+		    Account recipient = this.accounts[accountIndex];
+		    System.out.printf("How much would you like to transfer?\n");
+		    double transfer = scan.nextDouble();
+		    try {
+			account.transferFunds(account, recipient, transfer);
+			System.out.printf("Done. Returning to menu.\n");
+		    } catch (LowFunds err) {
+			System.err.printf("ERROR!!\n"+
+					  err.what()+
+					  "\nTry again.\n");
+		    } finally {
+			break;
+		    }
+		} else {
+		    System.out.printf("There is no account with that\n"+
+				      "account ID registered at this\n"+
+				      "bank. Please check that you have\n"+
+				      "entered the correct account ID\n"+
+				      "and try again.\n");
+		    break;
+		}
+		
+	    case 5:
+		System.out.printf("Your last deposit was $%,.2f%n"+
+				  "Returning to menu.\n",last_deposit);
+		break;
+		
+	    case 6:
+		System.out.printf("Exiting menu...\n");
+		menu_up = false;
+		return;
+	    }
 	}
     }
 
@@ -359,8 +461,12 @@ public class BankInterface {
             System.out.println("Out of attempts. Bye bye.");
             return;
         } else {
+	    Account account;
             banksy.employeeMenu();
-	    banksy.customerMenu();
+	    while (is_running) {
+		account = banksy.customerInitialMenu();
+		banksy.customerMenu(account);
+	    }
         }
     }
 }

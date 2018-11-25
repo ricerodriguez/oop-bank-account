@@ -36,13 +36,22 @@ public class Account {
 	return;
     }
 
-    public double depositFunds(double funds) throws LowFunds {
+    public double depositFunds (double funds) {
 	return -1.0;
     }
 
-    public double withdrawFunds(double funds) throws LowFunds {
+    public double withdrawFunds (double funds) throws LowFunds {
 	return -1.0;
     }
+
+    public double transferFunds (Account acc1, Account acc2, double d) throws LowFunds {
+	return -1.0;
+    }
+
+    public double getBalance() {
+	return -1.0;
+    }
+    
     // ~~~~~~ THESE METHODS ARE OVERRIDDEN IN SUBCLASSES^ ~~~~~~
 
     public Account (int PIN, int SSN) throws LengthException {

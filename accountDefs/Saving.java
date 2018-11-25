@@ -54,21 +54,23 @@ public class Saving extends Account {
 	return "saving";
     }
 
-    public double transferFunds (Account account, double funds, int accountID) throws LowFunds, NoAccount {
+    public double transferFunds (Account account, Account recipient, double funds) throws LowFunds {
 	if (this.balance < funds) {
 	    throw new LowFunds();
 	} else {
-	    int index;
-	    Account recipient;
+	    // int index;
+	    // Account recipient;
 	    this.balance -= funds;
-	    try {
-		index = account.findIndex(accountID);
-		recipient = account.accounts[index];
-		recipient.depositFunds(funds);
-	    } catch (NoAccount err) {
-		this.balance += funds;
-		throw new NoAccount();
-	    }
+	    // try {
+	    // 	index = account.findIndex(accountID);
+	    // 	recipient = account.accounts[index];
+	    // 	recipient.depositFunds(funds);
+	    // } catch (NoAccount err) {
+	    // 	this.balance += funds;
+	    // 	throw new NoAccount();
+	    // }
+	    recipient.depositFunds(funds);
+
 	}
 	return this.balance;
     }

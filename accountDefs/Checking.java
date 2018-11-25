@@ -66,48 +66,30 @@ public class Checking extends Account {
 	return "checking";
     }
 
-    public double transferFunds (Account account, double funds, int accountID) throws LowFunds, NoAccount {
-	if (this.balance < funds) {
-	    throw new LowFunds();
-	} else {
-	    int index;
-	    Account recipient;
-	    this.balance -= funds;
-	    try {
-		index = account.findIndex(accountID);
-		recipient = account.accounts[index];
-		recipient.depositFunds(funds);
-	    } catch (NoAccount err) {
-		this.balance += funds;
-		throw new NoAccount();
-	    }
-	}
+    public double getBalance () {
 	return this.balance;
     }
 
-    // public <T extends Checking, Account> double transferFundsChecking (T type, double funds, int accountID) throws LowFunds, NoAccount {
-    // 	if (this.balance < funds) {
-    // 	    throw new LowFunds();
-    // 	} else if (type.accountID != accountID) {
-    // 	    throw new NoAccount();
-    // 	} else {
-    // 	    this.balance -= funds;
-    // 	    type.balance += funds;
-    // 	    return this.balance;
-    // 	}
-    // }
+    public double transferFunds (Account account, Account recipient, double funds) throws LowFunds {
+	if (this.balance < funds) {
+	    throw new LowFunds();
+	} else {
+	    // int index;
+	    // Account recipient;
+	    this.balance -= funds;
+	    // try {
+	    // 	index = account.findIndex(accountID);
+	    // 	recipient = account.accounts[index];
+	    // 	recipient.depositFunds(funds);
+	    // } catch (NoAccount err) {
+	    // 	this.balance += funds;
+	    // 	throw new NoAccount();
+	    // }
+	    recipient.depositFunds(funds);
 
-    // public <T extends Saving, Account> double transferFundsSaving (T type, double funds, int accountID) throws LowFunds, NoAccount {
-    // 	if (this.balance < funds) {
-    // 	    throw new LowFunds();
-    // 	} else if (type.accountID != accountID) {
-    // 	    throw new NoAccount();
-    // 	} else {
-    // 	    this.balance -= funds;
-    // 	    type.balance += funds;
-    // 	    return this.balance;
-    // 	}
-    // }
+	}
+	return this.balance;
+    }
 
     public void closeAccount (Account account) throws NoAccount {
 	try {
