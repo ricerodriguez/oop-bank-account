@@ -79,7 +79,6 @@ public class Saving extends Account {
 
     public class InterestCalculator extends TimerTask {
 	private double balance;
-	private double balanceWithInterest;
 	private Saving account;
 
 	public InterestCalculator (Saving account) {
@@ -89,10 +88,9 @@ public class Saving extends Account {
 	}
 
 	public void run() {
-	    this.balance = account.getBalance();
-	    this.balanceWithInterest = this.balance*0.05;
-	    this.balanceWithInterest += this.balance;
-	    account.balance = balanceWithInterest;
+	    this.balance = account.getBalance()*0.05;
+	    this.balance += account.getBalance();
+	    account.balance = this.balance;
 	    // System.out.println("Added interest.");
 	}
 
