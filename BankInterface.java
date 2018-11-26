@@ -9,14 +9,10 @@ public class BankInterface {
     Account [] accounts = new Account[100];
     // Array of 10 total accounts
     Account [] superAccounts = new Account[10];
-    int [] numAccounts = new int [20];
-    Checking check = new Checking();
-    Saving save = new Saving();
     int i = 0; // Total number of checking/saving accounts
     int numSuper = 0; // Total number of accounts which contain checking/savings
     public BankInterface () {
-	// for (int i=0; i<20; i++) {
-	    // accounts[i] = new Account();}
+	// Empty constructor
     }
 
     public void employeeMenu () {
@@ -49,7 +45,9 @@ public class BankInterface {
                               "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"+
 			      "Current Accounts: %d\n",i);
 	    if (i>0) {
-		for (int j=0; j<numSuper; j++) {
+		// for (int j=0; j<numSuper; j++) {
+		int j=0;
+		while (this.superAccounts[j]!=null) {
 		    // Grab the account in the array at this index
 		    Account supertemp = this.superAccounts[j];
 		    // Grab the checking/savings accounts under
@@ -68,6 +66,7 @@ public class BankInterface {
 			    break;
 			}
 		    }
+		    j++;
 		}
 
 		System.out.printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
@@ -237,26 +236,6 @@ public class BankInterface {
 		 temp = this.accounts[ind];
 		 // Get the superaccount of the account ID
 		 supertemp = getSuper(accountID);
-		 // for (int j = 0; j<numSuper; j++) {
-		 //     supertemp = this.superAccounts[j];
-		 //     Account [] subAccountsEach = supertemp.getAccounts();
-		 //     while (k<subAccountsEach.length) {
-		 // 	 if (subAccountsEach[k]!=null) {
-		 // 	     ind = this.findIndex(accountID, this.accounts);
-		 // 	     if (subAccountsEach[k] == accounts[ind]) {
-		 // 		 break;
-		 // 	     } else {
-		 // 		 k++;
-		 // 		 continue;
-		 // 	     }
-		 // 	 }
-		 //     }
-		 //     if (subAccountsEach[k] == accounts[ind]) {
-		 // 	 break;
-		 //     } else {
-		 // 	 continue;
-		 //     }
-		 // }
 		 for (int i=0; i<3; i++) {
 		     if (!isValidPIN) {
 			 System.out.printf("Please enter your PIN.\n");
@@ -345,7 +324,7 @@ public class BankInterface {
 		    System.out.printf("How much would you like to transfer?\n");
 		    double transfer = scan.nextDouble();
 		    try {
-			account.transferFunds(account, recipient, transfer);
+			account.transferFunds(recipient, transfer);
 			System.out.printf("Done. Returning to menu.\n");
 		    } catch (LowFunds err) {
 			System.err.printf("ERROR!!\n"+

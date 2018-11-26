@@ -4,22 +4,8 @@ import accountErrors.*;
 import java.lang.*;
 import java.io.*;
 public class Checking extends Account {
-    protected int accountID;
-    protected double balance;
-    private Account superAccount;
-
-    // Constructor for new checking account. Called when
-    // opening a new checking account. Does not require
-    // a balance.
-    public Checking (int PIN, int SSN, Account account) throws LengthException, InvalidPIN, OverwriteException {
-	account.setPIN(PIN);
-	account.setSSN(SSN);
-        account.accountIDs[account.num] = (int)(Math.random() * 99998)+1;
-        account.accounts[account.num] = this;
-        account.num++;
-	this.accountID = account.getAccountID();
-	this.superAccount = account.getAccount();
-    }
+    private int accountID;
+    private double balance;
 
     // Constructor for opening checking account in existing bank account.
     public Checking (Account account) throws InvalidPIN, NoAccount {
@@ -28,22 +14,13 @@ public class Checking extends Account {
         account.accounts[account.num] = this;
         account.num++;
         this.accountID = account.getAccountID();
-	this.superAccount = account.getAccount();
     }
 
     public Checking () {
     // Empty constructor
     }
 
-    public void setPIN (int PIN) throws OverwriteException, LengthException {
-	super.setPIN(PIN);
-    }
-
-    public void setSSN (int SSN) throws OverwriteException, LengthException {
-	super.setSSN(SSN);
-    }
-
-        // Deposit funds to checking account.
+    // Deposit funds to checking account.
     public double depositFunds (double funds) {
 	this.balance = balance+funds;
         return this.balance;
@@ -62,29 +39,15 @@ public class Checking extends Account {
         return this.accountID;
     }
 
-    public String getType () {
-	return "checking";
-    }
-
     public double getBalance () {
 	return this.balance;
     }
 
-    public double transferFunds (Account account, Account recipient, double funds) throws LowFunds {
+    public double transferFunds (Account recipient, double funds) throws LowFunds {
 	if (this.balance < funds) {
 	    throw new LowFunds();
 	} else {
-	    // int index;
-	    // Account recipient;
 	    this.balance -= funds;
-	    // try {
-	    // 	index = account.findIndex(accountID);
-	    // 	recipient = account.accounts[index];
-	    // 	recipient.depositFunds(funds);
-	    // } catch (NoAccount err) {
-	    // 	this.balance += funds;
-	    // 	throw new NoAccount();
-	    // }
 	    recipient.depositFunds(funds);
 
 	}
@@ -101,12 +64,13 @@ public class Checking extends Account {
 	}
     }
 
+    public String getType() {
+	return "checking";
+    }
+
     public void clearAccount () {
 	this.balance = 0.0;
 	this.accountID = 0;
     }
     
-    public Account getAccount () {
-	return super.getAccount();
-    }
 }
