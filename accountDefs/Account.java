@@ -4,14 +4,14 @@ import java.io.*;
 import java.lang.*;
 import accountErrors.*;
 public class Account {
-    protected int PIN;
-    protected int SSN;
+    private int PIN;
+    private int SSN;
     // Array of account ID's
     protected int [] accountIDs = new int [10];
     // Array of accounts (checking or saving)
     protected Account [] accounts = new Account [10];
     // Array of account types
-    protected String [] accountTypes = new String [10]; 
+    // protected String [] accountTypes = new String [10]; 
     // Number of checking or savings accounts
     protected int num = 0;
 
@@ -21,8 +21,8 @@ public class Account {
     }
     // ~~~~~~ THESE METHODS ARE OVERRIDDEN IN SUBCLASSES: ~~~~~~
     public String getType() {
-	// Empty method. This should never actually execute.
-	return "null";
+    	// Empty method. This should never actually execute.
+    	return "null";
     }
 
     public void closeAccount() throws NoAccount {
@@ -44,7 +44,7 @@ public class Account {
 	return -1.0;
     }
 
-    public double transferFunds (Account acc1, Account acc2, double d) throws LowFunds {
+    public double transferFunds (Account acc2, double d) throws LowFunds {
 	return -1.0;
     }
 
@@ -84,15 +84,15 @@ public class Account {
     protected<T extends Account> void addAccount (T account) {
 	System.out.println(num);
 	this.accounts[num] = account;
-	this.accountTypes[num] = account.getType();
+	// this.accountTypes[num] = account.getType();
 	this.num++;
     }
 
     // Use this to determine what kind of account something is based off its ID
-    protected String whichAccount (int accountID) throws NoAccount {
-	int result = this.findIndex(accountID);
-	return this.accountTypes[result];
-    }
+    // protected String whichAccount (int accountID) throws NoAccount {
+    // 	int result = this.findIndex(accountID);
+    // 	return this.accountTypes[result];
+    // }
 
     // Use this to get the account ID of the last account that was added
     public int getAccountID () {
@@ -100,7 +100,7 @@ public class Account {
     }
 
     // Use this to find the index of an account in the array of accounts
-    protected int findIndex (int accountID) throws NoAccount {
+    private int findIndex (int accountID) throws NoAccount {
         int i = 0;
         while (this.accountIDs[i] != 0) {
 	   if (this.accountIDs[i] == accountID) {
@@ -113,7 +113,7 @@ public class Account {
         // return -1;
     }
 
-    protected int findIndex (Account account) throws NoAccount {
+    private int findIndex (Account account) throws NoAccount {
         int i = 0;
         while (this.accounts[i] != null) {
 	   if (this.accounts[i] == account) {
@@ -178,7 +178,7 @@ public class Account {
 	    for (int i=numPartial; i<howManyLeft;i++) {
 		this.accountIDs[i]=this.accountIDs[i+1];
 		this.accounts[i]=this.accounts[i+1];
-		this.accountTypes[i]=this.accountTypes[i+1];
+		// this.accountTypes[i]=this.accountTypes[i+1];
 	    }
 	} catch (NoAccount err) {
 	    throw new NoAccount();
